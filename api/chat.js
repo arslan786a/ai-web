@@ -3,7 +3,7 @@ const fetch = require('node-fetch');
 
 // Helper function to check if a message is a script request
 function isScriptRequest(message) {
-  const keywords = ['سکرپٹ', 'اسکرپٹ', 'اسکرپٹ بناؤ', 'script', 'make a script', 'create a script'];
+  const keywords = ['سکرپٹ', 'اسکرپٹ بناؤ', 'script', 'make a script', 'create a script', 'پائتھن اسکرپٹ', 'python script'];
   return keywords.some(keyword => message.toLowerCase().includes(keyword));
 }
 
@@ -20,7 +20,7 @@ module.exports = async (req, res) => {
 
   try {
     if (isScriptRequest(message)) {
-      // Logic for script generation (same as the previous answer)
+      // Logic for script generation
       const apis = [
         { name: 'chatgpt', url: `https://ai-api-phi-seven.vercel.app/api/chatgpt?message=${encodeURIComponent(message)}` },
         { name: 'deepseek', url: `https://ai-api-phi-seven.vercel.app/api/deepseek?message=${encodeURIComponent(message)}` },
@@ -40,25 +40,26 @@ module.exports = async (req, res) => {
 
       const results = await Promise.all(apiPromises);
 
-      const combinedMessage = results.reduce((acc, current) => {
-        if (current.success) {
-          acc += `${current.msg}\n\n`;
+      let combinedMessage = results.reduce((acc, current) => {
+        if (current.success && current.msg) {
+          acc += `- ${current.msg.replace(/\n/g, ' ')}\n`; // Replace newlines in each response to keep it single line for list
         }
         return acc;
-      }, 'These are different AI responses to the request. Combine and refine them into a single, comprehensive script:\n\n');
+      }, `I need a Python script. Here are various AI suggestions for the request "${message}". Please combine and refine these suggestions into a single, well-formatted Python script. Make sure to present the script within a Markdown code block (like \`\`\`python ... \`\`\`).\n\n`);
+
 
       const chatGptApiUrl = `https://ai-api-phi-seven.vercel.app/api/chatgpt?message=${encodeURIComponent(combinedMessage)}`;
       const finalResponse = await fetch(chatGptApiUrl);
       const finalData = await finalResponse.json();
 
-      res.status(200).json({ success: true, msg: finalData.msg });
+      res.status(200).json({ success: true, msg: finalData.msg, type: 'script' });
 
     } else {
       // Logic for normal conversation (direct ChatGPT call)
       const chatGptApiUrl = `https://ai-api-phi-seven.vercel.app/api/chatgpt?message=${encodeURIComponent(message)}`;
       const response = await fetch(chatGptApiUrl);
       const data = await response.json();
-      res.status(200).json({ success: true, msg: data.msg });
+      res.status(200).json({ success: true, msg: data.msg, type: 'chat' });
     }
 
   } catch (error) {
