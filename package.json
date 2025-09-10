@@ -1,0 +1,22 @@
+{
+  "name": "ai-chat-website",
+  "version": "1.0.0",
+  "description": "A full-stack AI chatbot website with multi-API support.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "keywords": [
+    "ai",
+    "chatbot",
+    "vercel",
+    "express",
+    "api"
+  ],
+  "author": "Nothing Is Impossible",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.19.2",
+    "node-fetch": "^2.7.0"
+  }
+}
