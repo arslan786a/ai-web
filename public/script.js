@@ -3,11 +3,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const chatMessages = document.getElementById('chat-messages');
     const userInput = document.getElementById('user-input');
     const sendButton = document.getElementById('send-button');
-    const scriptSection = document.getElementById('script-section');
-    const scriptContent = document.getElementById('script-content');
-    const copyScriptButton = document.getElementById('copy-script-button');
+    const copyNotification = document.getElementById('copy-notification');
 
-    function appendMessage(sender, message) {
+    // Helper function to create and append a message
+    function appendMessage(sender, message, isScript = false) {
         const messageDiv = document.createElement('div');
         messageDiv.classList.add('message');
         if (sender === 'user') {
@@ -15,18 +14,68 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             messageDiv.classList.add('ai-message');
         }
-        messageDiv.textContent = message;
+
+        if (isScript) {
+            const scriptBox = document.createElement('div');
+            scriptBox.classList.add('script-message');
+            
+            const copyButton = document.createElement('button');
+            copyButton.classList.add('copy-button');
+            copyButton.textContent = 'کاپی کریں';
+            
+            const preTag = document.createElement('pre');
+            preTag.textContent = message;
+
+            copyButton.addEventListener('click', () => {
+                navigator.clipboard.writeText(message).then(() => {
+                    showCopyNotification();
+                }).catch(err => {
+                    console.error('Failed to copy script:', err);
+                });
+            });
+            
+            scriptBox.appendChild(copyButton);
+            scriptBox.appendChild(preTag);
+            messageDiv.appendChild(scriptBox);
+        } else {
+            messageDiv.textContent = message;
+        }
+
         chatMessages.insertBefore(messageDiv, chatMessages.firstChild);
     }
+    
+    // Function to show a copy notification
+    function showCopyNotification() {
+        copyNotification.classList.add('show');
+        setTimeout(() => {
+            copyNotification.classList.remove('show');
+        }, 2000); // Hide after 2 seconds
+    }
 
-    // Function to parse Markdown code blocks and convert to HTML
+    // Function to handle the loading state
+    let loadingMessageElement = null;
+    function showLoading() {
+        loadingMessageElement = document.createElement('div');
+        loadingMessageElement.classList.add('loading-message');
+        loadingMessageElement.textContent = 'اسکرپٹ بنایا جا رہا ہے...';
+        chatMessages.insertBefore(loadingMessageElement, chatMessages.firstChild);
+    }
+
+    function hideLoading() {
+        if (loadingMessageElement) {
+            loadingMessageElement.remove();
+            loadingMessageElement = null;
+        }
+    }
+
+    // Function to parse Markdown code blocks
     function parseMarkdownCode(markdown) {
         const codeBlockRegex = /```(?:\w+)?\n([\s\S]*?)```/g;
         const match = codeBlockRegex.exec(markdown);
         if (match && match[1]) {
-            return match[1].trim(); // Extract content inside the code block
+            return match[1].trim();
         }
-        return markdown; // Return original if no code block found
+        return markdown;
     }
 
     async function sendMessage() {
@@ -35,21 +84,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
         appendMessage('user', message);
         userInput.value = '';
-
-        // Hide script section if visible
-        scriptSection.style.display = 'none';
-        scriptContent.textContent = ''; // Clear previous script
+        
+        // Show loading message if a script is requested
+        const isScriptRequest = message.toLowerCase().includes('اسکرپٹ') || message.toLowerCase().includes('script');
+        if (isScriptRequest) {
+            showLoading();
+        }
 
         try {
             const response = await fetch(`/api/chat?message=${encodeURIComponent(message)}`);
             const data = await response.json();
 
+            hideLoading();
+
             if (data.success) {
                 if (data.type === 'script') {
                     const scriptText = parseMarkdownCode(data.msg);
-                    scriptContent.textContent = scriptText;
-                    scriptSection.style.display = 'block'; // Show script section
-                    appendMessage('ai', 'یہ رہا آپ کا اسکرپٹ:'); // Optional: A message in chat saying script is ready
+                    appendMessage('ai', scriptText, true); // Append script as a special message
                 } else {
                     appendMessage('ai', data.msg); // Normal chat message
                 }
@@ -58,20 +109,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } catch (error) {
             console.error('Fetch error:', error);
+            hideLoading();
             appendMessage('ai', 'Server error. Please try again later.');
         }
     }
-
-    // Copy to clipboard functionality
-    copyScriptButton.addEventListener('click', () => {
-        const textToCopy = scriptContent.textContent;
-        navigator.clipboard.writeText(textToCopy).then(() => {
-            alert('اسکرپٹ کاپی کر لیا گیا!'); // Or a more subtle notification
-        }).catch(err => {
-            console.error('Failed to copy script:', err);
-            alert('اسکرپٹ کاپی کرنے میں ناکامی۔');
-        });
-    });
 
     sendButton.addEventListener('click', sendMessage);
 

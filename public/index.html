@@ -4,114 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Chatbot</title>
-    <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-        }
-        .chat-container {
-            width: 100%;
-            max-width: 600px;
-            background-color: #fff;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            max-height: 90vh;
-        }
-        .chat-messages {
-            flex-grow: 1;
-            padding: 20px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column-reverse; /* New messages appear at the bottom */
-        }
-        .message {
-            margin-bottom: 10px;
-            padding: 10px 15px;
-            border-radius: 20px;
-            max-width: 80%;
-            word-wrap: break-word;
-        }
-        .user-message {
-            align-self: flex-end;
-            background-color: #007bff;
-            color: #fff;
-            text-align: right;
-        }
-        .ai-message {
-            align-self: flex-start;
-            background-color: #e2e2e2;
-            color: #333;
-            text-align: left;
-        }
-        .chat-input {
-            display: flex;
-            padding: 10px;
-            border-top: 1px solid #ddd;
-        }
-        .chat-input input {
-            flex-grow: 1;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 20px;
-            outline: none;
-        }
-        .chat-input button {
-            background-color: #007bff;
-            color: #fff;
-            border: none;
-            padding: 10px 15px;
-            margin-right: 10px;
-            border-radius: 20px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-        .chat-input button:hover {
-            background-color: #0056b3;
-        }
-
-        /* Script Section Styling */
-        .script-section {
-            background-color: #282c34; /* Dark background for code */
-            color: #abb2bf;
-            padding: 15px;
-            border-radius: 8px;
-            margin: 20px;
-            font-family: 'Consolas', 'Monaco', 'Andale Mono', 'Ubuntu Mono', monospace;
-            font-size: 0.9em;
-            position: relative;
-            display: none; /* Initially hidden */
-        }
-        .script-section pre {
-            margin: 0;
-            white-space: pre-wrap; /* Allows text to wrap */
-            word-break: break-all;
-        }
-        .copy-button {
-            position: absolute;
-            top: 10px;
-            left: 10px; /* Adjusted for RTL */
-            background-color: #61afef;
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 0.8em;
-            transition: background-color 0.3s ease;
-        }
-        .copy-button:hover {
-            background-color: #4a91d6;
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="chat-container">
@@ -120,16 +13,12 @@
                 جی! میں آپ کی کیا مدد کر سکتا ہوں؟
             </div>
         </div>
-        
-        <div class="script-section" id="script-section">
-            <button class="copy-button" id="copy-script-button">کاپی کریں</button>
-            <pre id="script-content"></pre>
-        </div>
         <div class="chat-input">
             <input type="text" id="user-input" placeholder="یہاں اپنا پیغام لکھیں...">
             <button id="send-button">بھیجیں</button>
         </div>
     </div>
+    <div id="copy-notification" class="copy-notification">کاپی کر لیا گیا!</div>
     <script src="script.js"></script>
 </body>
 </html>
